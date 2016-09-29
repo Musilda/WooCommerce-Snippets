@@ -1,0 +1,23 @@
+
+/**
+ *
+ *  Set all product as virtual
+ *
+ */
+add_action( 'init', 'set_virtual' );
+function set_virtual(){
+
+
+    $args = array( 
+        'post_type' => 'product',
+        'posts_per_page' => -1
+        );
+    $products = new WP_Query( $args );
+    var_dump(count($products->posts));
+    foreach( $products->posts as $item ){
+
+        update_post_meta( $item->ID, '_virtual', 'yes' );
+
+    }
+
+}
