@@ -1,0 +1,17 @@
+/**
+ * Delete all user without order (fake spam users)
+ *
+ */
+
+global $wpdb;
+
+$query = "DELETE FROM ".$wpdb->prefix."users WHERE ".$wpdb->prefix."users.ID not in (
+  SELECT meta_value FROM ".$wpdb->prefix."postmeta WHERE meta_key = '_customer_user'
+) AND ".$wpdb->prefix."users.ID not in (
+  SELECT distinct(post_author) from ".$wpdb->prefix."posts
+);";
+$wpdb->get_results( $query );
+
+
+$query = "DELETE FROM ".$wpdb->prefix."usermeta WHERE ".$wpdb->prefix."usermeta.user_id not in (SELECT ID FROM ".$wpdb->prefix."users);";
+$wpdb->get_results( $query );
