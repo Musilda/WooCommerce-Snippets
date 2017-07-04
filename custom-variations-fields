@@ -1,0 +1,174 @@
+<?php
+/**
+ * Save new fields for variations
+ *  
+ * @since 1.0.0
+ */
+add_action( 'woocommerce_save_product_variation', 'wxm_save_variable_fields' , 10, 1 );  
+function wxm_save_variable_fields( $post_id ) {
+	
+    
+    if (isset( $_POST['variable_sku'] ) ){
+ 
+		$variable_post_id      = $_POST['variable_post_id'];
+    
+    
+    
+    $data_array = array(
+        '_variation_hide_from_heureka_cz',
+        '_variation_hide_from_heureka_sk',
+        '_variation_hide_from_zbozi',
+        '_variation_hide_from_google',
+        '_variation_custom_product_description',
+        '_variation_heureka_title',
+        '_variation_heureka_name',
+        '_variation_heureka_category',
+        '_variation_zbozi_category',
+        '_variation_google_category',
+        '_variation_imgurl_alternative',
+        '_variation_video_url',
+        '_variation_delivery_date',
+        '_variation_ean',
+        '_variation_isbn',
+        '_variation_heureka_cpc',
+        '_variation_heureka_cpc_sk',
+        '_variation_srovname_toll',
+        '_variation_zbozi_cpc',
+        '_variation_accessory',
+        '_variation_dues',
+        '_variation_heureka_gift',
+        '_variation_heureka_doprava',
+        '_variation_zbozi_unfeatured',
+        '_variation_zbozi_extra_message',
+        '_variation_google_mnp',
+        '_variation_google_description',
+        '_variation_zbozi_brand',
+        '_variation_zbozi_category_id',
+        '_variation_zbozi_visibility',
+        '_variation_zbozi_custom_label_0',
+        '_variation_zbozi_custom_label_1',
+        '_variation_zbozi_product_line',
+        '_variation_zbozi_productno',
+        '_variation_google_identifikator_exists',
+        '_variation_google_adult',
+        '_variation_google_product_age_group',
+        '_variation_google_product_gender',
+        '_variation_google_doprava',
+        '_variation_google_product_type',
+        '_variation_google_stitek_value_1',
+        '_variation_google_stitek_value_2',
+        '_variation_google_stitek_value_3',
+        '_variation_google_stitek_value_4',
+        '_variation_google_stitek_value_5'
+    );
+    
+                      
+        foreach( $variable_post_id as $i => $item ){  
+            
+            $variation_id = (int)$variable_post_id[$i];
+            
+   
+            foreach( $data_array as $meta ){
+      
+                if( $meta == '_variation_imgurl_alternative' ){
+
+                    if( !empty( $_POST['_variation_imgurl_alternative'][$i] ) ){
+
+                        update_post_meta( $variation_id, '_variation_imgurl_alternative', stripslashes( $_POST['_variation_imgurl_alternative'][$i] ) );
+                       
+                    }else{
+                        delete_post_meta( $variation_id, '_variation_imgurl_alternative' );
+                    }
+
+
+                }else{
+          
+                    if ( isset( $_POST[$meta][$i] ) ) {
+    				    update_post_meta( $variation_id, $meta, stripslashes( $_POST[$meta][$i] ) );
+                    }else{
+                        delete_post_meta( $variation_id, $meta );
+                    }
+                }
+            }  
+        }  
+		//endfor;
+	}
+}
+
+/**
+ * Code for custom field _variation_imgurl_alternative
+ *
+ */
+add_action( 'woocommerce_product_after_variable_attributes', 'wxm_variable_fields' , 50, 3 ); 
+function wxm_variable_fields( $loop, $variation_data, $variation ) {
+
+/**
+ * jQuery code for adding new line table with alternative images for xml feed
+ *
+ */
+
+?>
+<script>
+      jQuery( document ).ready(function() {
+        jQuery('.pridat_altimg<?php echo $loop; ?>').on('click',function(){
+        //Get last number
+        var textfieldid = jQuery('.altimg-wrap<?php echo $loop; ?> .imgurl_alternative').last().data('id');
+        textfieldid++;
+            
+            jQuery('.altimg-wrap<?php echo $loop; ?>').append('<p class="form-field imgurl_alternative_field"><label for="imgurl_alternative">Alternative image</label><input type="text" class="imgurl_alternative" id="alt'+textfieldid+'" data-id="'+textfieldid+'" name="_variation_imgurl_alternative[<?php echo $loop; ?>][]" value="" /><input type="button" class="btn btn-info btn-mini alt-image-button" value="Upload image" style="width:auto;" data-loop="<?php echo $loop; ?>" /><span class="btn btn-danger btn-mini remove-altimg" data-widget="remove" data-toggle="tooltip" title="" data-original-title="Remove"><i class="fa fa-times"></i></span></p>');
+        });
+
+        //Remove line
+        jQuery('.altimg-wrap<?php echo $loop; ?>').on('click','.remove-altimg',function(){
+            jQuery(this).closest('.imgurl_alternative_field').remove();
+        });
+        
+        //Upload image button
+        jQuery('.altimg-wrap<?php echo $loop; ?>').on('click','.alt-image-button',function(){
+            var wrapid = jQuery(this).data('loop');
+            var textfieldid = jQuery(this).prev().attr('id');
+    
+            wp.media.editor.send.attachment = function(props, attachment){
+                jQuery('#'+textfieldid).val(attachment.url);
+            }
+            wp.media.editor.open(this);
+                return false;
+        });    
+
+    });
+    </script>
+<?php
+
+    //Get value
+    if(!empty($variation_data['_variation_imgurl_alternative'][0])){ $img_alternative = $variation_data['_variation_imgurl_alternative'][0];  }
+
+    echo '<div class="altimg-wrap'.$loop.' altimg-wrap">';
+
+    if(!empty($img_alternative)){
+    
+        $img_alt = unserialize($img_alternative);
+
+        $i=1;
+        foreach($img_alt as $key => $item){
+    
+            echo '<p class="form-field imgurl_alternative_field">
+                <label for="imgurl_alternative">' .  __( 'Alternativní obrázek', 'woocommerce' ) . '</label>
+                <input type="text" class="imgurl_alternative" id="alt'.$loop.''.$i.'" data-id="'.$i.'" name="_variation_imgurl_alternative['.$loop.'][]" value="' . esc_attr( $item ) . '" />';
+            echo '<input type="button" class="btn btn-info btn-mini alt-image-button" value="Nahrej obrázek" style="width:auto;" data-loop="'.$loop.'" />';    
+            echo '<span class="btn btn-danger btn-mini remove-altimg" data-widget="remove" data-toggle="tooltip" title="" data-original-title="Remove"><i class="fa fa-times"></i></span>';    
+            echo '</p>';  
+            $i++;  
+        }
+    }else{
+        
+            echo '<p class="form-field imgurl_alternative_field">
+                <label for="_variation_imgurl_alternative">' .  __( 'Alternativní obrázek', 'woocommerce' ) . '</label>
+                <input type="text" class="imgurl_alternative" id="alt'.$loop.'1" data-id="1" name="_variation_imgurl_alternative['.$loop.'][]" value="" />';
+            echo '<input type="button" class="btn btn-info btn-mini alt-image-button" value="Nahrej obrázek" style="width:auto;" data-loop="'.$loop.'" />';    
+            echo '</p>';
+    }
+
+    echo '</div>';
+    echo '<div class="clear"></div><p><span class="btn btn-info btn-sm pridat_altimg'.$loop.'" data-loop="'.$loop.'">Přidat obrázek</span></p><div class="clear"></div>';
+
+}
