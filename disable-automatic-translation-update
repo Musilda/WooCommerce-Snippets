@@ -1,0 +1,21 @@
+/*
+Plugin Name: WooCommerce Disable Auto Translation
+Description: Disables automatic translations by WordPress.org / GlotPress for WooCommerce.
+Author: Vladislav Musílek
+License: GPLv2 or later
+*/
+/**
+ * Disables automatic translations for WooCommerce.
+ *
+ * @param  bool   $retval Whether to use automatic translations
+ * @param  object $item   Update object.  Do fine-grained checks against $item->type and $item->slug.
+ * @return bool
+ */
+function toret_disable_woo_auto_translation( $retval, $item ) {
+	// disable automatic translations for WooCommerce
+	if ( 'plugin' === $item->type && 'woocommerce' === $item->slug ) {
+		return false;
+	}
+	return $retval;
+}
+add_filter( 'auto_update_translation', 'toret_disable_woo_auto_translation', 10, 2 );
