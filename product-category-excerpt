@@ -1,0 +1,6 @@
+add_action( 'woocommerce_shop_loop_item_title', 'toret_excerpt_in_product_archives', 20 );
+function toret_excerpt_in_product_archives() {
+     
+    the_excerpt();
+     
+}
