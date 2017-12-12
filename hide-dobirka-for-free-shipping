@@ -1,0 +1,14 @@
+
+function woo_doprava_dobirka_avaibility(){
+
+	$packages = WC()->shipping->get_packages();
+	foreach ($packages as $i => $package) {
+    	$chosen_method = isset(WC()->session->chosen_shipping_methods[$i]) ? WC()->session->chosen_shipping_methods[$i] : '';
+    	$rate = $package['rates'][$chosen_method]->cost;
+	}
+
+	if( $rate == 0 ){
+		return 'hide';
+	}
+
+}
