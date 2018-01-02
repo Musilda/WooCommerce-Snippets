@@ -1,0 +1,13 @@
+
+add_action( 'woocommerce_cart_calculate_fees', 'toret_discount_by_cart' );
+function toret_discount_by_cart(){
+
+  $subtotal = WC()->cart->get_subtotal();
+  
+  if( $subtotal > 500 ){
+    
+    WC->cart->add_fee( 'Discount' 50, true );
+  
+  }
+
+}
