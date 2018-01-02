@@ -1,0 +1,25 @@
+
+//123 = product id
+//321 = product gift id
+add_action( 'woocommerce_add_to_cart', 'toret_add_free_gift', 10, 2 );
+function toret_add_free_gift( $cart_item_key, $product_id ){
+
+  if( $product_id == 123 ){
+  
+    $cart_items = WC()->cart->get_cart();
+    $is_in_cart = false;
+    foreach( $cart_items as $item ){
+    
+      if( $item['product_id'] == 321 ){
+        $is_in_cart = true;
+      }
+    
+    }
+    if( $is_in_cart === false ){
+      //Gift isnt in cart, use add_to_cart
+      WC()->cart->add_to_cart( 321, 1 );
+    }
+    
+  }
+
+}
