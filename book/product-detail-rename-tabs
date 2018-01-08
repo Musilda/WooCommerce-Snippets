@@ -1,0 +1,8 @@
+
+add_filter( 'woocommerce_product_tabs', 'toret_edit_title_product_tabs', 100 );
+
+function toret_edit_title_product_tabs( $tabs ) {
+    $tabs['description']['title'] = 'Your tab title';
+    return $tabs;
+}
+
