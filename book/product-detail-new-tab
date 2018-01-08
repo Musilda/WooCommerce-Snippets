@@ -1,0 +1,19 @@
+
+
+function display_free_shipping_tab( $tabs ){
+
+	$tabs['free_shipping'] = array(
+			'title' 	=> __( 'Free shipping','textdomain' ),
+			'priority' 	=> 40,
+			'callback'	=> 'display_free_shipping_tab_content'
+
+	);
+
+}
+add_action( 'woocommerce_product_tabs', 'display_free_shipping_tab' );
+
+function display_free_shipping_tab_content(){
+	echo '<h2>'.__( 'Free shipping','textdomain' ).'</h2>';
+	echo '<p>'.__( 'If you buy this product, you get free shippping','textdomain' ).'</p>';
+}
+
