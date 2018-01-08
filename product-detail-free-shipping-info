@@ -1,0 +1,21 @@
+
+function display_product_free_shipping(){
+
+	global $product;
+	$price = $product->get_price();
+
+	if( $price > 15 ){
+		echo '<p style="color:red;">Buy this product and get free shipping!</p>';
+	}
+
+}
+add_action( 'woocommerce_single_product_summary', 'display_product_free_shipping', 28 );
+
+
+
+
+
+
+
+
+
