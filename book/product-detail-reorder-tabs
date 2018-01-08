@@ -1,0 +1,9 @@
+
+add_filter( 'woocommerce_product_tabs', 'toret_change_priority_product_tabs', 100 );
+function toret_change_priority_product_tabs( $tabs ) {
+    $tabs['description']['priority'] = 30;
+    $tabs['additional_information']['priority'] = 20;
+    $tabs['reviews']['priority'] = 10;
+    return $tabs;
+}
+
