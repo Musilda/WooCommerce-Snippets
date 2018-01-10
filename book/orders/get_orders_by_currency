@@ -1,0 +1,5 @@
+
+$args = array(
+    'currency' => 'USD',
+);
+$orders = wc_get_orders( $args );
