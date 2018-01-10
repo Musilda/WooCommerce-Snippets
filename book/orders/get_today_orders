@@ -1,0 +1,5 @@
+
+$args = array(
+    'date_created' => '>=' . date( 'Y-m-d' ),
+);
+$orders = wc_get_orders( $args );
