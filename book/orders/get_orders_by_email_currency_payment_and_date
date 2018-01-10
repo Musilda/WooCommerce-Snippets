@@ -6,7 +6,7 @@
  * last month
  */
 $args = array(
-    'payment_method' => 'back',
+    'payment_method' => 'bacs',
     'status' => 'completed',
     'currency' => 'CZK',
     'billing_email' => 'email@gmail.com',
