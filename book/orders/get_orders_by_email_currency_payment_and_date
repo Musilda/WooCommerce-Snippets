@@ -1,0 +1,17 @@
+/**
+ * payment method 
+ * status
+ * currency
+ * email
+ * last month
+ */
+$args = array(
+    'payment_method' => 'back',
+    'status' => 'completed',
+    'currency' => 'CZK',
+    'billing_email' => 'email@gmail.com',
+     'date_created' => '<' . ( time() - MONTH_IN_SECONDS ),    
+);
+
+$orders = wc_get_orders( $args );
+
