@@ -1,7 +1,7 @@
 
 function add_custom_order_woocommerce_email( $email_classes ) {
   
-    $email_classes['WC_EET_Order_Email'] = new WC_EET_Order_Email();
+    $email_classes['WC_Custom_Order_Email'] = new WC_Custom_Order_Email();
  
     return $email_classes;
  
