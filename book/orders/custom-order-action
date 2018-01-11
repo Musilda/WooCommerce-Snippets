@@ -1,0 +1,18 @@
+
+
+function add_custom_order_action( $actions ) {
+    
+    $actions['customer_package_info'] = __( 'Package info', 'woocommerce' );
+    
+    return $actions;
+    
+ }
+add_action( 'woocommerce_order_actions', 'add_custom_order_action' );
+
+function process_customer_package_info( $order ) {
+
+  //Do what you want
+
+}
+
+add_action( 'woocommerce_order_action_customer_package_info', 'process_customer_package_info' ) );
