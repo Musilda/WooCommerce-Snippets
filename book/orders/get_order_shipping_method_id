@@ -1,0 +1,10 @@
+
+
+$items = $order->get_items( 'shipping' );
+foreach( $items as $item ){
+
+  $shipping_id = $item->get_method_id(); 
+ 
+}
+
+
