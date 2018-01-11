@@ -1,0 +1,20 @@
+
+function add_custom_order_woocommerce_email( $email_classes ) {
+  
+    $email_classes['WC_EET_Order_Email'] = new WC_EET_Order_Email();
+ 
+    return $email_classes;
+ 
+}
+add_filter( 'woocommerce_email_classes', 'add_custom_order_woocommerce_email' );
+
+function add_custom_email_actions( $email_actions ) {
+
+  $email_actions[] = 'toret_custom_send';
+  
+  return $email_actions;
+
+}
+
+add_filter( 'woocommerce_email_actions', 'add_custom_email_actions' ); 
+
