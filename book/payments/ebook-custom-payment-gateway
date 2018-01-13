@@ -52,7 +52,14 @@ if ( ! function_exists( 'woocommerce_gateway_ebook_payment_init' ) ) {
 				$this->instructions         = $this->get_option( 'instructions', $this->description );
     				$this->enable_for_methods   = $this->get_option( 'enable_for_methods', array() );
     				$this->order_status 	      = $this->get_option( 'order_status', array() );
+				
+				$this->custom_value = get_option( 'woocommerce_ebook-payment_custom_value' );
 
+				add_action( 
+					'woocommerce_update_options_payment_gateways_' . $this->id, 
+					array( $this, 'save_custom_data' ) 
+				);
+				
 				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
   				add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
 				add_filter( 'woocommerce_payment_complete_order_status', array( $this, 'change_payment_complete_order_status' ), 10, 3 );
@@ -141,11 +148,47 @@ if ( ! function_exists( 'woocommerce_gateway_ebook_payment_init' ) ) {
 						),
 						'desc_tip'    	  => true,
 		  			),
-      					'account_details' => array(
-						'type'          => 'account_details'
+      					'custom_value' => array(
+						'type'          => 'custom_value'
 					),
     				);
 			}
+			
+			/**
+    			 * Save account details table
+    			 */
+    			public function save_custom_data() {
+    				
+    				if ( isset( $_POST['my_custom_value'] ) ) {
+
+    					update_option( 
+						'woocommerce_ebook-payment_custom_value', 
+						sanitize_post_field( $_POST['my_custom_value'] ) 
+					);
+
+    				}
+
+    			}
+			
+			/**
+    			 * Generate_custom_value_html function.
+    			 */
+    			public function generate_custom_value_html() {
+    				
+				ob_start();
+    				?>
+	    				<tr valign="top">
+            					<th scope="row" class="titledesc">
+							<?php _e( 'Custom value', $this->plugin_slug ); ?>:
+						</th>
+            					<td class="forminp" id="custom_value">
+			    				<?php _e( 'Custom input', $this->plugin_slug ); ?>		       					
+            					</td>
+	    				</tr>
+        				<?php
+        				return ob_get_clean();
+				}
+			
            
            		/**
 			 * Check If The Gateway Is Available For Use
@@ -200,6 +243,67 @@ if ( ! function_exists( 'woocommerce_gateway_ebook_payment_init' ) ) {
 
 				return parent::is_available();
 			}
+			
+			/**
+    			 * Output for the order received page.
+    			 */
+    			public function thankyou_page( $order_id ) {
+					
+					if ( $this->instructions ) {
+        				echo wpautop( wptexturize( wp_kses_post( $this->instructions ) ) );
+        			}
+    			
+    			}
+			
+			/**
+			 * Add content to the WC emails.
+			 *
+			 * @access public
+			 * @param WC_Order $order
+			 * @param bool $sent_to_admin
+			 * @param bool $plain_text
+			 */
+			public function email_instructions( $order, $sent_to_admin, $plain_text = false ) {
+				if ( $this->instructions && ! $sent_to_admin && $this->id === $order->get_payment_method() ) {
+					echo wpautop( wptexturize( $this->instructions ) ) . PHP_EOL;
+				}
+			}
+			
+			/**
+    			 * Process the payment and return the result
+    			 *
+    			 * @param int $order_id
+    			 * @return array
+    			 */
+    			public function process_payment( $order_id ) {
+
+				$order = wc_get_order( $order_id );
+				
+				if ( ! empty( $this->order_status ) ) {
+					$order->update_status( 
+						$this->order_status, 
+						__( 'Payment by eBook payment.', $this->plugin_slug ) 
+					);
+				}else{
+					$order->update_status( 
+						'on-hold', 
+						__( 'Payment by eBook payment.', $this->plugin_slug ) 
+					);
+				}
+
+				// Reduce stock levels
+				wc_reduce_stock_levels( $order_id );
+
+				// Remove cart
+				WC()->cart->empty_cart();
+
+				// Return thankyou redirect
+				return array(
+					'result' 	=> 'success',
+					'redirect'	=> $this->get_return_url( $order ),
+				);
+    			}
+			
           
 		}
     
