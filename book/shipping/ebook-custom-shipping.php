@@ -78,6 +78,7 @@ if ( ! function_exists( 'woocommerce_ebook_shipping_init' ) ) {
 
                     			// Define user set variables
                     			$this->title            = $this->get_option( 'title' );
+					$this->cost             = $this->get_option( 'cost' );
 
                     			// Actions
                     			add_action( 
@@ -117,7 +118,7 @@ if ( ! function_exists( 'woocommerce_ebook_shipping_init' ) ) {
 				public function calculate_shipping( $package = array() ) {
                             
                         		$this->add_rate( array(
-						'label' 	 => $this->title,
+						'label'	     => $this->title,
 						'package'    => $package,
 						'cost'       => $this->cost,
 					) );
