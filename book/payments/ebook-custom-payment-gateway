@@ -21,221 +21,202 @@
  
 if ( ! function_exists( 'woocommerce_gateway_ebook_payment_init' ) ) { 
 		
-		add_action( 'plugins_loaded', 'woocommerce_gateway_ebook_payment_init' );
+	add_action( 'plugins_loaded', 'woocommerce_gateway_ebook_payment_init' );
 
-		function woocommerce_gateway_ebook_payment_init(){
+	function woocommerce_gateway_ebook_payment_init(){
 
-  			if(!class_exists('WC_Payment_Gateway')) return;
+		if(!class_exists('WC_Payment_Gateway')) return;
 
-			  class WC_Gateway_Ebook_Payment extends WC_Payment_Gateway {
+		class WC_Gateway_Ebook_Payment extends WC_Payment_Gateway {
         
-          /**
+          		/**
     			 * Plugin slug
     			 *
     			 */        
     			private $plugin_slug = 'ebook-payment';
           
-          /**
+          		/**
     			 * Constructor for the gateway.
     			 */
     			public function __construct() {
     
     				$this->setup_properties();
 					
-					  // Load the settings.
-					  $this->init_form_fields();
-					  $this->init_settings();
+				// Load the settings.
+				$this->init_form_fields();
+				$this->init_settings();
 
     				// Define user set variables
-					  $this->title                = $this->get_option( 'title' );
-					  $this->description          = $this->get_option( 'description' );
-					  $this->instructions         = $this->get_option( 'instructions', $this->description );
+				$this->title                = $this->get_option( 'title' );
+				$this->description          = $this->get_option( 'description' );
+				$this->instructions         = $this->get_option( 'instructions', $this->description );
     				$this->enable_for_methods   = $this->get_option( 'enable_for_methods', array() );
     				$this->order_status 	      = $this->get_option( 'order_status', array() );
 
-					  // pnu account fields shown on the thanks page and in emails
-					  $this->account_details = get_option( 'woocommerce_advanced_bacs_accounts',
-						  array(
-  							array(
-  								'account_name'   => $this->get_option( 'account_name' ),
-  								'account_number' => $this->get_option( 'account_number' ),
-  								'sort_code'      => $this->get_option( 'sort_code' ),
-  								'bank_name'      => $this->get_option( 'bank_name' ),
-  								'iban'           => $this->get_option( 'iban' ),
-  								'bic'            => $this->get_option( 'bic' ),
-  								'cur'            => $this->get_option( 'cur' )
-  							)
-  						)
-  					);
-  
+				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+  				add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
+				add_filter( 'woocommerce_payment_complete_order_status', array( $this, 'change_payment_complete_order_status' ), 10, 3 );
 
-	  				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-  					add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
-  					add_filter( 'woocommerce_payment_complete_order_status', array( $this, 'change_payment_complete_order_status' ), 10, 3 );
-
-  					// Customer Emails
-  					add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
-  				}
+  				// Customer Emails
+  				add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
+  			}
           
-          /**
-				   *
-				   * Setup general properties for the gateway.
-				   *
-				   */
-				  protected function setup_properties() {
+          		/**
+			 *
+			 * Setup general properties for the gateway.
+			 *
+			 */
+			protected function setup_properties() {
 					
-					  $this->id                 = 'ebook-payment';
-					  $this->icon               = apply_filters( 'woocommerce_ebook-payment_icon', '' );
-					  $this->method_title       = __( 'eBook Payment', $thit->plugin_slug );
-					  $this->method_description = __( 'Test payment gateway', $thit->plugin_slug );
-					  $this->has_fields         = false;
+				$this->id                 = 'ebook-payment';
+				$this->icon               = apply_filters( 'woocommerce_ebook-payment_icon', '' );
+				$this->method_title       = __( 'eBook Payment', $thit->plugin_slug );
+				$this->method_description = __( 'Test payment gateway', $thit->plugin_slug );
+				$this->has_fields         = false;
 				
-				  }
-          
-          
-          /**
+			}
+			
+          		/**
     			 * Initialise Gateway Settings Form Fields
     			 */
     			public function init_form_fields() {
     
     				$shipping_methods = array();
 
-    				if ( is_admin() )
+    				if ( is_admin() ){
 	    				foreach ( WC()->shipping->load_shipping_methods() as $method ) {
 		    				$shipping_methods[ $method->id ] = $method->get_method_title();
 	    				} 
+				}
 
-      					$this->form_fields = array(
-							    'enabled' => array(
-								    'title'   => __( 'Enable', $this->plugin_slug ),
-								    'type'    => 'checkbox',
-								    'label'   => __( 'Enable eBook payment', $this->plugin_slug ),
-								    'default' => 'yes'
-							    ),
-							    'title' => array(
-  								  'title'       => __( 'Title', $this->plugin_slug ),
-  								  'type'        => 'text',
-  								  'description' => __( 'Payment method description that the customer will see on your checkout.', $this->plugin_slug ),
-  								  'default'     => __( 'Cash on delivery', $this->plugin_slug ),
-  								  'desc_tip'    => true,
-  							  ),
-  							  'description' => array(
-  								  'title'       => __( 'Description', $this->plugin_slug ),
-  								  'type'        => 'textarea',
-  								  'description' => __( 'Payment method description that the customer will see on your website.', $this->plugin_slug ),
-  								  'default'     => __( 'Pay with cash upon delivery.', $this->plugin_slug ),
-	  							  'desc_tip'    => true,
-  							  ),
-  							  'instructions' => array(
-    								'title'       => __( 'Instructions', $this->plugin_slug ),
-  	  							'type'        => 'textarea',
-  		    					'description' => __( 'Instructions that will be added to the thank you page.', $this->plugin_slug ),
-  				    			'default'     => __( 'Pay with cash upon delivery.', $this->plugin_slug ),
-  						  		'desc_tip'    => true,
-  						  	),
-    							'enable_for_methods' => array(
-    								'title'             => __( 'Enable for shipping methods', $this->plugin_slug ),
-    								'type'              => 'multiselect',
-  	  							'class'             => 'wc-enhanced-select',
-    								'css'               => 'width: 400px;',
-    								'default' 		  => '',
-    								'description' 	=> __( 'Allow shipping methods for payment.', $this->plugin_slug),
-    								'options'		    => $shipping_methods,
-    								'desc_tip'      => true,
-    							),
-      						'order_status' => array(
-                    'title' 		  => __( 'Order status', $this->plugin_slug  ),
-								    'type' 			  => 'select',
-								    'class'			  => 'chosen_select',
-								    'css'			  => 'width: 450px;',
-								    'default' 		  => '',
-								    'description'     => __( 'Order status after payment.', $this->plugin_slug  ),
-								    'options'		  => array(
-									      'on-hold'       => __( 'On hold', $this->plugin_slug  ),
-									      'processing'	=> __( 'Processing', $this->plugin_slug  ),
-									      'completed' 	=> __( 'Completed.', $this->plugin_slug  )
-								     ),
-								    'desc_tip'    	  => true,
-		  					  ),
-      						'account_details' => array(
-								    'type'          => 'account_details'
-							    ),
-    					 );
-				   }
+      				$this->form_fields = array(
+					'enabled' => array(
+						'title'   => __( 'Enable', $this->plugin_slug ),
+						'type'    => 'checkbox',
+						'label'   => __( 'Enable eBook payment', $this->plugin_slug ),
+						'default' => 'yes'
+					),
+					'title' => array(
+  						'title'       => __( 'Title', $this->plugin_slug ),
+  						'type'        => 'text',
+  						'description' => __( 'Payment method description that the customer will see on your checkout.', $this->plugin_slug ),
+  						'default'     => __( 'Cash on delivery', $this->plugin_slug ),
+  						'desc_tip'    => true,
+  					),
+  					'description' => array(
+  						'title'       => __( 'Description', $this->plugin_slug ),
+  						'type'        => 'textarea',
+  						'description' => __( 'Payment method description that the customer will see on your website.', $this->plugin_slug ),
+  						'default'     => __( 'Pay with cash upon delivery.', $this->plugin_slug ),
+	  					'desc_tip'    => true,
+  					),
+  					'instructions' => array(
+    						'title'       => __( 'Instructions', $this->plugin_slug ),
+  	  					'type'        => 'textarea',
+  		    				'description' => __( 'Instructions that will be added to the thank you page.', $this->plugin_slug ),
+  				    		'default'     => __( 'Pay with cash upon delivery.', $this->plugin_slug ),
+  						'desc_tip'    => true,
+  					),
+    					'enable_for_methods' => array(
+    						'title'             => __( 'Enable for shipping methods', $this->plugin_slug ),
+    						'type'              => 'multiselect',
+  	  					'class'             => 'wc-enhanced-select',
+    						'css'               => 'width: 400px;',
+    						'default' 		  => '',
+    						'description' 	=> __( 'Allow shipping methods for payment.', $this->plugin_slug),
+    						'options'		    => $shipping_methods,
+    						'desc_tip'      => true,
+    					),
+      					'order_status' => array(
+                    				'title' 		  => __( 'Order status', $this->plugin_slug  ),
+						'type' 			  => 'select',
+						'class'			  => 'chosen_select',
+						'css'			  => 'width: 450px;',
+						'default' 		  => '',
+						'description'     => __( 'Order status after payment.', $this->plugin_slug  ),
+						'options'		  => array(
+							'on-hold'       => __( 'On hold', $this->plugin_slug  ),
+							'processing'	=> __( 'Processing', $this->plugin_slug  ),
+							'completed' 	=> __( 'Completed.', $this->plugin_slug  )
+						),
+						'desc_tip'    	  => true,
+		  			),
+      					'account_details' => array(
+						'type'          => 'account_details'
+					),
+    				);
+			}
            
-           /**
-				 * Check If The Gateway Is Available For Use
-				 *
-				 * @access public
-				 * @return bool
-				 */
-				function is_available() {
+           		/**
+			 * Check If The Gateway Is Available For Use
+			 *
+			 * @access public
+			 * @return bool
+			 */
+			function is_available() {
 					
-					if( is_admin() ){ return false; }
-
+				if( is_admin() ){ return false; }
     				$order          = null;
-					  $needs_shipping = false;
+				$needs_shipping = false;
 
-					// Test if shipping is needed first
-					if ( WC()->cart && WC()->cart->needs_shipping() ) {
-						$needs_shipping = true;
-					} elseif ( is_page( wc_get_page_id( 'checkout' ) ) && 0 < get_query_var( 'order-pay' ) ) {
-						$order_id = absint( get_query_var( 'order-pay' ) );
-						$order    = wc_get_order( $order_id );
+				// Test if shipping is needed first
+				if ( WC()->cart && WC()->cart->needs_shipping() ) {
+					$needs_shipping = true;
+				} elseif ( is_page( wc_get_page_id( 'checkout' ) ) && 0 < get_query_var( 'order-pay' ) ) {
+					$order_id = absint( get_query_var( 'order-pay' ) );
+					$order    = wc_get_order( $order_id );
 
-						// Test if order needs shipping.
-						if ( 0 < sizeof( $order->get_items() ) ) {
-							foreach ( $order->get_items() as $item ) {
-								$_product = $item->get_product();
-								if ( $_product && $_product->needs_shipping() ) {
-									$needs_shipping = true;
-									break;
-								}
+					// Test if order needs shipping.
+					if ( 0 < sizeof( $order->get_items() ) ) {
+						foreach ( $order->get_items() as $item ) {
+							$_product = $item->get_product();
+							if ( $_product && $_product->needs_shipping() ) {
+								$needs_shipping = true;
+								break;
 							}
 						}
 					}
+				}
 
-					$needs_shipping = apply_filters( 'woocommerce_cart_needs_shipping', $needs_shipping );
+				$needs_shipping = apply_filters( 'woocommerce_cart_needs_shipping', $needs_shipping );
 
-					if ( ! $needs_shipping ) {
+				if ( ! $needs_shipping ) {
+					return false;
+				}
+				// Only apply if all packages are being shipped via chosen method, or order is virtual.
+				if ( ! empty( $this->enable_for_methods ) && $needs_shipping ) {
+					$chosen_shipping_methods = array();
+
+					if ( is_object( $order ) ) {
+						$chosen_shipping_methods = array_unique( array_map( 'wc_get_string_before_colon', $order->get_shipping_methods() ) );
+					} elseif ( $chosen_shipping_methods_session = WC()->session->get( 'chosen_shipping_methods' ) ) {
+						$chosen_shipping_methods = array_unique( array_map( 'wc_get_string_before_colon', $chosen_shipping_methods_session ) );
+					}
+
+					if ( 0 < count( array_diff( $chosen_shipping_methods, $this->enable_for_methods ) ) ) {
 						return false;
 					}
-
-					// Only apply if all packages are being shipped via chosen method, or order is virtual.
-					if ( ! empty( $this->enable_for_methods ) && $needs_shipping ) {
-						$chosen_shipping_methods = array();
-
-						if ( is_object( $order ) ) {
-							$chosen_shipping_methods = array_unique( array_map( 'wc_get_string_before_colon', $order->get_shipping_methods() ) );
-						} elseif ( $chosen_shipping_methods_session = WC()->session->get( 'chosen_shipping_methods' ) ) {
-							$chosen_shipping_methods = array_unique( array_map( 'wc_get_string_before_colon', $chosen_shipping_methods_session ) );
-						}
-
-						if ( 0 < count( array_diff( $chosen_shipping_methods, $this->enable_for_methods ) ) ) {
-							return false;
-						}
-					}
-
-					return parent::is_available();
 				}
+
+				return parent::is_available();
+			}
           
-      
-      }
+		}
     
-    }
+	}
     
-    /**
-     *
-     *  Add the Gateway to WooCommerce
-     *       
-     */
+    	/**
+    	 *
+    	 *  Add the Gateway to WooCommerce
+    	 *       
+    	 */
                  
   	function woocommerce_add_gateway_ebook_payment( $methods ) {
-        $methods[] = 'WC_Gateway_Ebook_Payment';
-        return $methods;
-    }
-    //Woocommerce payment gateways filter
-    add_filter('woocommerce_payment_gateways', 'woocommerce_add_gateway_ebook_payment' );
+        	$methods[] = 'WC_Gateway_Ebook_Payment';
+        	return $methods;
+    	}
+    	//Woocommerce payment gateways filter
+    	add_filter('woocommerce_payment_gateways', 'woocommerce_add_gateway_ebook_payment' );
     
 }
       
