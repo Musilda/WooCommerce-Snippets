@@ -125,8 +125,12 @@ if ( ! function_exists( 'woocommerce_ebook_shipping_init' ) ) {
            
 				}
 
-		}//End class
- 
+			}//End class
+		}
+
+	} 
+
+
 	/**
     	 *
     	 *  Add the Shipping to WooCommerce
