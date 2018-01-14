@@ -1,0 +1,30 @@
+
+
+include( 'includes/vendor/autoload.php' );
+
+use Automattic\WooCommerce\Client;
+
+$shop_name = 'https://eshop.com/';
+$consumer_key = 'xxx';
+$consumer_secret =  'yyy';
+
+$object = new Client(
+            $shop_name, 
+            $consumer_key, 
+            $consumer_secret,
+            array(
+                'wp_api' => true,
+                'version' => 'wc/v2',
+                'query_string_auth' => true,
+                'timeout' => 300
+            )
+);
+
+
+$order = $object->get( 
+            'orders', 
+            array( 'id' => $order_id ) 
+         );
+
+
+$order_status = $order['status'];
