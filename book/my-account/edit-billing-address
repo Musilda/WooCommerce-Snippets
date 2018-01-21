@@ -1,0 +1,15 @@
+
+
+add_filter( 'woocommerce_my_account_my_address_formatted_address', 'toret_custom_address_value' );
+function toret_custom_address_value( $fields, $user_id, $name ){
+
+	if( $name == 'billing' ){
+	
+		$fields['test'] = 'Test';
+	
+	}
+
+	return $fields;
+
+}
+
