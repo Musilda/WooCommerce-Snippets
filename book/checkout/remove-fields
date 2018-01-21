@@ -1,0 +1,24 @@
+
+add_filter( 'woocommerce_checkout_fields', 'toret_unset_checkout_fields' );
+function toret_unset_checkout_fields( $fields ) {
+    
+    $billing_keys = array(
+        'billing_company',
+        'billing_phone',
+        'billing_address_1',
+        'billing_address_2',
+        'billing_city',
+        'billing_postcode',
+        'billing_country',
+        'billing_state',
+    );
+
+    foreach( $billing_keys as $key ) {
+        unset( $fields['billing'][$key] );
+    }
+    
+    return $fields;
+}
+
+
+
