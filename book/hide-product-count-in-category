@@ -1,0 +1,8 @@
+
+add_filter( 'woocommerce_subcategory_count_html', 'toret_remove_category_products_count' );
+
+function toret_remove_category_products_count() {
+	return;
+}
+
+
