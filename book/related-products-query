@@ -1,6 +1,6 @@
 
 
-$query = array(
+	$query = array(
 			'fields' => "
 				SELECT DISTINCT ID FROM {$wpdb->posts} p
 			",
