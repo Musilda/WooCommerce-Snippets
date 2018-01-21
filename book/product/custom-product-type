@@ -1,0 +1,23 @@
+
+class WC_Product_Rental extends WC_Product {
+	
+	public function __construct( $product ) {
+		
+		$this->product_type = 'rental';
+		parent::__construct( $product );
+	
+	}
+
+}
+
+
+add_filter( 'product_type_selector', 'toret_rental_product' );
+function toret_rental_product( $types ){
+
+	$types[ 'rental' ] = __( 'Rental' );
+	return $types;
+
+}
+
+
+
