@@ -1,0 +1,14 @@
+
+
+add_action( 'woocommerce_after_shop_loop_item_title', 'toret_short_description_in_product_archives', 40 );
+function toret_short_description_in_product_archives() {
+     
+    global $product;
+    $excerpt = $product->get_short_description();
+    if( !empty( $excerpt ) ){
+     	echo $excerpt;
+    }
+     
+}
+
+
