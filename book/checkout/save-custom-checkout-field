@@ -1,0 +1,11 @@
+
+add_action( 'woocommerce_checkout_update_order_meta', 'toret_custom_checkout_field_update_order_meta' );
+
+function toret_custom_checkout_field_update_order_meta( $order_id ) {
+
+    if ( ! empty( $_POST['education'] ) ) {
+        update_post_meta( $order_id, 'education', sanitize_text_field( $_POST['education'] ) );
+    }
+
+}
+
