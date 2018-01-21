@@ -1,0 +1,14 @@
+
+add_filter( 'woocommerce_billing_fields' , 'toret_custom_field' );
+function toret_custom_field( $fields ){
+	$fields['education'] = array(
+				'label'        => __( 'Education', 'woocommerce' ),
+				'required'     => true,
+				'type'         => 'text',
+				'class'        => array( 'form-row-wide' )
+	);
+	return $fields;
+}
+
+
+
