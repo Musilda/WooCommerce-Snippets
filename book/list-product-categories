@@ -1,0 +1,28 @@
+
+
+$args = array(
+    'number'     => $number,
+    'orderby'    => $orderby,
+    'order'      => $order,
+    'hide_empty' => $hide_empty,
+    'include'    => $ids
+);
+
+$product_categories = get_terms( 'product_cat', $args );
+
+$count = count($product_categories);
+ if ( $count > 0 ){
+     echo "<ul>";
+     foreach ( $product_categories as $product_category ) {
+       echo '
+              <li>
+                <a href="' . get_term_link( $product_category ) . '">
+                  ' . $product_category->name . '
+                </a>
+              </li>';
+        
+     }
+     echo "</ul>";
+ }
+ 
+ 
