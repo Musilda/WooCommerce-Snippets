@@ -1,0 +1,12 @@
+
+add_filter( 'woocommerce_checkout_fields', 'toret_account_checkout_fields' ); 
+function toret_account_checkout_fields( $fields ) {
+	$fields['account']['account_username']['required'] = true;
+	$fields['account']['account_password']['required'] = true;
+	$fields['account']['account_password-2']['required'] = true;
+
+	return $fields;
+}
+
+
+
