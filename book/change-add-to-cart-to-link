@@ -1,0 +1,12 @@
+
+remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10 );
+add_action( 'woocommerce_after_shop_loop_item', 'view_product_button', 10 );
+function view_product_button(){
+	global $product;
+	$product_id = $product->get_id();
+	echo '<a href="'.get_the_permalink( $product_id ).'" class="button">View product</a>';
+
+}
+
+
+
