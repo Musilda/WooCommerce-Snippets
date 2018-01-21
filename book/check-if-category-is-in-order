@@ -1,0 +1,29 @@
+
+add_action( 'woocommerce_thankyou', 'toret_check_category_order', 5 );
+ 
+function toret_check_category_order( $order_id ) { 
+ 
+    if ( ! $order_id ) {
+        return;
+    }
+    $order = wc_get_order( $order_id );
+    $cat_in_order = false;
+    $items = $order->get_items(); 
+     
+    foreach ( $items as $item ) {
+         
+        $product_id = $item['product_id'];
+      
+        if ( has_term( 'memberships', 'product_cat', $product_id ) ) {
+            $cat_in_order = true;
+            break;
+        }
+     
+    }
+    if ( $cat_in_order ) {
+   
+      //display something on thankyou page
+       
+    }
+   
+}
