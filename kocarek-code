@@ -1,0 +1,12 @@
+
+
+/**	 * Code goes in theme functions.php.	 */	
+add_action( 'init', 'custom_kocarek_init_hooks' );
+function custom_kocarek_init_hooks(){
+  add_filter( 'woocommerce_product_subcategories_args', 'custom_woocommerce_product_subcategories_args' );  
+}		
+
+function custom_woocommerce_product_subcategories_args( $args ) {	  
+    $args['exclude'] = get_option( 'default_product_cat );	  
+    return $args;	
+}
