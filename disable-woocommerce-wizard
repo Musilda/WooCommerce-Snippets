@@ -1,0 +1,4 @@
+add_filter( 'woocommerce_enable_setup_wizard', 'disable_urbania_wizard' );
+function disable_urbania_wizard( $wiz ){ 
+	return false;
+}
