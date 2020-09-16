@@ -1,8 +1,8 @@
 <?php
 
 /**
-	 * Add new column to products  
-	 */
+* Add new column to products  
+ */
 add_filter( 'manage_edit-product_columns', 'new_product_column' );
 function new_product_column( $columns ) {
 
@@ -14,11 +14,11 @@ function new_product_column( $columns ) {
 			} 
 		}
 		return $new_columns;
-	}
+}
 
-	/**
-	 * Display custom column value
-	 */
+/**
+ * Display custom column value
+ */
 add_filter( 'manage_product_posts_custom_column', 'show_column_data' );
 function show_column_data( $column ) {
 		global $post;
@@ -31,4 +31,4 @@ function show_column_data( $column ) {
 			}
 		
 		}
-	}
+}
